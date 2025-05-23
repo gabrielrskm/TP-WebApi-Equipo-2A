@@ -6,28 +6,32 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using TP_WebApi_equipo_2A.Models;
 
 namespace TP_WebApi_equipo_2A.Controllers
 {
-    public class ValuesController : ApiController
+    public class ProductoController : ApiController
     {
         // GET api/values
-        public IEnumerable<Categoria> Get()
+        public IEnumerable<Articulo> Get()
         {
-            CategoriaNegocio cn = new CategoriaNegocio();
-            List<Categoria> lista = cn.Listar();
-            
+            ArticuloNegocio articuloNegocio = new ArticuloNegocio();
+            List<Articulo> lista = articuloNegocio.Listar();
+         
             return lista;
         }
 
         // GET api/values/5
-        public string Get(int id)
+        public Articulo Get(int id)
         {
-            return "value";
+            ArticuloNegocio articuloNegocio = new ArticuloNegocio();
+            List<Articulo> lista = articuloNegocio.Listar();
+            Articulo articulo = lista.Find(a => a.ID == id);
+            return articulo;
         }
 
         // POST api/values
-        public void Post([FromBody] string value)
+        public void Post([FromBody] ProductoDTO value)
         {
         }
 
