@@ -4,36 +4,36 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using dominio;
+using negocio;
+using TP_WebApi_equipo_2A.Models;
 
 namespace TP_WebApi_equipo_2A.Controllers
 {
     public class ImagenController : ApiController
     {
-        // GET: api/Imagen
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
 
-        // GET: api/Imagen/5
-        public string Get(int id)
+        // POST: /api/Imagen/id
+        public string Post(int id, [FromBody] ImagenDTO Imagenes)
         {
-            return "value";
-        }
-
-        // POST: api/Imagen
-        public void Post([FromBody]string value)
-        {
-        }
-
-        // PUT: api/Imagen/5
-        public void Put(int id, [FromBody]string value)
-        {
-        }
-
-        // DELETE: api/Imagen/5
-        public void Delete(int id)
-        {
+            if (Imagenes == null || Imagenes.Urls == null || Imagenes.Urls.Count == 0)
+            {
+                return "Se debe proporcionar una lista de URLs de imágenes.";
+            }
+            if (id == 0)
+            {
+                return "Se debe proporcionar el id del articulo";
+            }
+            try
+            {
+                ImagenNegocio negocio = new ImagenNegocio();
+                negocio.AgregarMasivoByArticuloId(id, Imagenes.Urls);
+                return "Imágenes agregadas correctamente al artículo " + id;
+            }
+            catch (Exception ex)
+            {
+                return "Error al agregar imagenes: " + ex.Message;
+            }
         }
     }
 }
