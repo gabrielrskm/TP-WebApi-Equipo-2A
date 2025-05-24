@@ -73,8 +73,11 @@ namespace negocio
                 if (datos.Lector.Read())
                 {
                     articulo = InicializarObjeto(datos);
+                } else
+                {
+                    return null;
                 }
-                return articulo;
+                    return articulo;
             }
             catch (Exception ex)
             {
