@@ -18,7 +18,7 @@ namespace TP_WebApi_equipo_2A.Controllers
         {
             ArticuloNegocio articuloNegocio = new ArticuloNegocio();
             List<Articulo> lista = articuloNegocio.Listar();
-         
+
             return lista;
         }
 
@@ -41,7 +41,7 @@ namespace TP_WebApi_equipo_2A.Controllers
                 productoDTO.Descripcion == string.Empty ||
                 productoDTO.Precio < 0 ||
                 productoDTO.IDCategoria < 1;
-                
+
             if (validation)
             {
                 return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Producto con items incompletos");
@@ -66,7 +66,7 @@ namespace TP_WebApi_equipo_2A.Controllers
                 }
 
                 articulo.Descripcion = productoDTO.Descripcion;
-                articulo.Categoria = new Categoria { ID = productoDTO.IDCategoria};
+                articulo.Categoria = new Categoria { ID = productoDTO.IDCategoria };
                 articulo.Codigo = productoDTO.Codigo;
                 articulo.Precio = productoDTO.Precio;
                 articulo.Marca = new Marca { ID = productoDTO.IDMarca };
@@ -82,21 +82,32 @@ namespace TP_WebApi_equipo_2A.Controllers
                 ArticuloNegocio articuloNegocio = new ArticuloNegocio();
                 articuloNegocio.Agregar(articulo);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
             return Request.CreateResponse(HttpStatusCode.OK, "El Producto fue creado correctamente.");
         }
 
-        // PUT api/values/5
-        public void Put(int id, [FromBody] string value)
+        // PATCH api/values/5
+        public void Patch(int id, [FromBody] ProductoDTO productoDTO)
         {
+            //Modificar producto
         }
 
-        // DELETE api/values/5
-        public void Delete(int id)
+        // DELETE api/Producto/{id}
+        public string Delete(int id)
         {
+            try
+            {
+                ArticuloNegocio articuloNegocio = new ArticuloNegocio();
+                articuloNegocio.Eliminar(id);
+                return "Eliminado ok";
+            }
+            catch (Exception ex)
+            {
+                return "Error al eliminar producto: " + ex.Message;
+            }
         }
     }
 }

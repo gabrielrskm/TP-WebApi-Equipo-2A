@@ -115,6 +115,28 @@ namespace negocio
                 datos.cerrarConexion();
             }
         }
+        public void Eliminar(int articuloId)
+        {
+            AccesoDatos datos = new AccesoDatos();
+            try
+            {
+                ImagenNegocio imgNegocio = new ImagenNegocio();
+                if (imgNegocio.EliminarByArticuloId(articuloId))
+                {
+                    datos.setearConsulta("DELETE FROM ARTICULOS WHERE Id=@Id");
+                    datos.setearParametros("@Id", articuloId);
+                    datos.ejecutarAccion();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarConexion();
+            }
+        }
         public void Agregar(Articulo articuloNuevo)
         {
 
