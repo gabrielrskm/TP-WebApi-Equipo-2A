@@ -13,7 +13,7 @@ namespace TP_WebApi_equipo_2A.Controllers
 {
     public class ProductoController : ApiController
     {
-        // GET api/values
+        // GET api/Producto
         public IEnumerable<Articulo> Get()
         {
             ArticuloNegocio articuloNegocio = new ArticuloNegocio();
@@ -21,8 +21,7 @@ namespace TP_WebApi_equipo_2A.Controllers
 
             return lista;
         }
-
-        // GET api/values/5
+        // GET api/Producto/{id}
         public Articulo Get(int id)
         {
             ArticuloNegocio articuloNegocio = new ArticuloNegocio();
@@ -30,8 +29,7 @@ namespace TP_WebApi_equipo_2A.Controllers
             Articulo articulo = lista.Find(a => a.ID == id);
             return articulo;
         }
-
-        // POST api/values
+        // POST api/Producto
         public HttpResponseMessage Post([FromBody] ProductoDTO productoDTO)
         {
             bool validation = (productoDTO == null) ||
@@ -52,7 +50,7 @@ namespace TP_WebApi_equipo_2A.Controllers
                 Articulo articulo = new Articulo();
                 CategoriaNegocio categoriaNegocio = new CategoriaNegocio();
                 List<Categoria> categorias = categoriaNegocio.Listar();
-                Categoria busquedaCategoria = categorias.Find(e => productoDTO.IDCategoria == e.ID);
+                Categoria busquedaCategoria = categorias.Find(e => (int)productoDTO.IDCategoria == e.ID);
                 if (busquedaCategoria == null)
                 {
                     return Request.CreateErrorResponse(HttpStatusCode.NotFound, "IDCategoria no existe");
@@ -66,10 +64,10 @@ namespace TP_WebApi_equipo_2A.Controllers
                 }
 
                 articulo.Descripcion = productoDTO.Descripcion;
-                articulo.Categoria = new Categoria { ID = productoDTO.IDCategoria };
-                articulo.Codigo = productoDTO.Codigo;
-                articulo.Precio = productoDTO.Precio;
-                articulo.Marca = new Marca { ID = productoDTO.IDMarca };
+                articulo.Categoria = new Categoria { ID = (int)productoDTO.IDCategoria };
+                articulo.Codigo = (string)productoDTO.Codigo;
+                articulo.Precio = (int)productoDTO.Precio;
+                articulo.Marca = new Marca { ID = (int)productoDTO.IDMarca };
                 articulo.Nombre = productoDTO.Nombre;
 
                 List<Imagen> listaImagen = new List<Imagen>();
@@ -89,24 +87,91 @@ namespace TP_WebApi_equipo_2A.Controllers
             return Request.CreateResponse(HttpStatusCode.OK, "El Producto fue creado correctamente.");
         }
 
-        // PATCH api/values/5
-        public void Patch(int id, [FromBody] ProductoDTO productoDTO)
+        // PATCH api/Producto/{id}
+        public HttpResponseMessage Patch(int id, [FromBody] ProductoDTO productoDTO)
         {
-            //Modificar producto
-        }
-
-        // DELETE api/Producto/{id}
-        public string Delete(int id)
-        {
+            if (productoDTO == null)
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Datos inválidos");
             try
             {
-                ArticuloNegocio articuloNegocio = new ArticuloNegocio();
-                articuloNegocio.Eliminar(id);
-                return "Eliminado ok";
+                ArticuloNegocio artNegocio = new ArticuloNegocio();
+                Articulo articulo = new Articulo();
+                articulo = artNegocio.FindById(id);
+
+                if (productoDTO.Codigo != null )
+                {
+                    articulo.Codigo = productoDTO.Codigo;
+                }
+                if (productoDTO.Nombre != null)
+                {
+                    articulo.Nombre = productoDTO.Nombre;
+                }
+                if (productoDTO.Descripcion != null)
+                {
+                    articulo.Descripcion = productoDTO.Descripcion;
+                }
+                if (productoDTO.IDMarca != null)
+                {
+                    MarcaNegocio marcaNegocio = new MarcaNegocio();
+                    List<Marca> marcas = marcaNegocio.Listar();
+                    Marca busquedaMarca = marcas.Find(value => productoDTO.IDMarca == value.ID);
+                    if (busquedaMarca == null)
+                    {
+                        return Request.CreateErrorResponse(HttpStatusCode.NotFound, "IDMarca no existe");
+                    }
+                    articulo.Marca = new Marca { ID = (int)productoDTO.IDMarca };
+                }
+                if (productoDTO.IDCategoria != null)
+                {
+                    CategoriaNegocio categoriaNegocio = new CategoriaNegocio();
+                    List<Categoria> categorias = categoriaNegocio.Listar();
+                    Categoria busquedaCategoria = categorias.Find(e => productoDTO.IDCategoria == e.ID);
+                    if (busquedaCategoria == null)
+                    {
+                        return Request.CreateErrorResponse(HttpStatusCode.NotFound, "IDCategoria no existe");
+                    }
+                    articulo.Categoria = new Categoria { ID = (int)productoDTO.IDCategoria };
+                }
+                if (productoDTO.Imagenes != null)
+                {
+                    List<Imagen> listaImagen = new List<Imagen>();
+                    foreach (var item in productoDTO.Imagenes)
+                    {
+                        Imagen imagen = new Imagen { ImagenUrl = item };
+                        listaImagen.Add(imagen);
+                    }
+                    articulo.Imagenes = listaImagen;
+                }
+                if (productoDTO.Precio != null)
+                {
+                    articulo.Precio = (float)productoDTO.Precio;
+                }
+                artNegocio.Modificar(articulo);
             }
             catch (Exception ex)
             {
-                return "Error al eliminar producto: " + ex.Message;
+                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
+            return Request.CreateResponse(HttpStatusCode.OK, "El Producto fue Modificado exitosamente correctamente.");
+        }
+        // DELETE api/Producto/{id}
+        public HttpResponseMessage Delete(int id)
+        {
+            try
+            {
+                Articulo articulo = new Articulo();
+                ArticuloNegocio articuloNegocio = new ArticuloNegocio();
+                articulo = articuloNegocio.FindById(id);
+                if (articulo != null)
+                {
+                    articuloNegocio.Eliminar(articulo);
+                    return Request.CreateResponse(HttpStatusCode.OK, "Eliminado ok.");
+                }
+                return Request.CreateErrorResponse(HttpStatusCode.NotFound, "El articulo a eliminar no existe.");
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
     }

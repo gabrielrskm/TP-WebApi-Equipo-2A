@@ -59,6 +59,32 @@ namespace negocio
                 datos.cerrarConexion();
             }
         }
+        public Articulo FindById(int id)
+        {
+            Articulo articulo = new Articulo();
+            AccesoDatos datos = new AccesoDatos();
+
+            try
+            {
+                datos.setearConsulta("select a.id, a.Codigo, a.Nombre, a.Descripcion, a.Precio, a.IdMarca, m.Descripcion as marcaDescripcion, a.IdCategoria, c.Descripcion as categoriaDescripcion from ARTICULOS as a left join CATEGORIAS c on (c.id = a.IdCategoria) left join MARCAS m on (m.id=a.IdMarca) where a.id = @id");
+                datos.setearParametros("@Id", id);
+                datos.ejecutarLectura();
+                
+                if (datos.Lector.Read())
+                {
+                    articulo = InicializarObjeto(datos);
+                }
+                return articulo;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarConexion();
+            }
+        }
         private Articulo InicializarObjeto(AccesoDatos datos)
         {
             int IdArticulo = (int)datos.Lector["id"];
@@ -103,28 +129,6 @@ namespace negocio
                     //Eliminar articulo
                     datos.setearConsulta("DELETE FROM ARTICULOS WHERE Id=@Id");
                     datos.setearParametros("@Id", articuloEliminar.ID);
-                    datos.ejecutarAccion();
-                }
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                datos.cerrarConexion();
-            }
-        }
-        public void Eliminar(int articuloId)
-        {
-            AccesoDatos datos = new AccesoDatos();
-            try
-            {
-                ImagenNegocio imgNegocio = new ImagenNegocio();
-                if (imgNegocio.EliminarByArticuloId(articuloId))
-                {
-                    datos.setearConsulta("DELETE FROM ARTICULOS WHERE Id=@Id");
-                    datos.setearParametros("@Id", articuloId);
                     datos.ejecutarAccion();
                 }
             }
