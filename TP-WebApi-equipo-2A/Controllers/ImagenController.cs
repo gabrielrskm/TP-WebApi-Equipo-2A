@@ -24,6 +24,11 @@ namespace TP_WebApi_equipo_2A.Controllers
             {
                 return "Se debe proporcionar el id del articulo";
             }
+            var articulo = new ArticuloNegocio().FindById(id);
+            if (articulo == null)
+            {
+                return "No se encontró el artículo con id " + id;
+            }
             try
             {
                 ImagenNegocio negocio = new ImagenNegocio();

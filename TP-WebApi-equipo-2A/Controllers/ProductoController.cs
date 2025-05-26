@@ -44,7 +44,10 @@ namespace TP_WebApi_equipo_2A.Controllers
             {
                 return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Producto con items incompletos");
             }
-
+            if (string.IsNullOrWhiteSpace(productoDTO.Nombre))
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Nombre es obligatorio.");
+            }
             try
             {
                 Articulo articulo = new Articulo();
@@ -97,7 +100,10 @@ namespace TP_WebApi_equipo_2A.Controllers
                 ArticuloNegocio artNegocio = new ArticuloNegocio();
                 Articulo articulo = new Articulo();
                 articulo = artNegocio.FindById(id);
-
+                if (articulo == null)
+                {
+                    return Request.CreateErrorResponse(HttpStatusCode.NotFound, "El articulo no existe");
+                }
                 if (productoDTO.Codigo != null )
                 {
                     articulo.Codigo = productoDTO.Codigo;
